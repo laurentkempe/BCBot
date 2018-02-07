@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  bcbot:
+    image: bcbot
+    build:
+      context: .
+      dockerfile: BCBot/Dockerfile
