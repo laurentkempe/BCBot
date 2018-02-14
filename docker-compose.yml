@@ -1,8 +1,22 @@
 version: '3'
 
 services:
+  https-portal:
+    image: steveltn/https-portal
+    ports:
+      - '80:80'
+      - '443:443'
+    links:
+      - bcbot
+    restart: always
+    environment:
+      DOMAINS: 'bcbot.laurentkempe.com -> http://bcbot:5000'
+      STAGE: 'production'
   bcbot:
-    image: bcbot
+    image: laurentkempe/bcbot
+    environment:
+      BASE_URL: 'https://bcbot.laurentkempe.com'
+      REDIS_URL: redis:6379
     build:
       context: .
       dockerfile: BCBot/Dockerfile
