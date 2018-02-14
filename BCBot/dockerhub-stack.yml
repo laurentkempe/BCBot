@@ -1,0 +1,16 @@
+bcbot:
+  autoredeploy: true
+  environment:
+    BASE_URL: 'https://bcbot.laurentkempe.com'
+  image: laurentkempe/bcbot
+https-portal:
+  environment:
+    DOMAINS: 'bcbot.laurentkempe.com -> http://bcbot:5000'
+    STAGE: 'production'
+  image: steveltn/https-portal
+  links:
+    - bcbot
+  ports:
+    - '80:80'
+    - '443:443'
+  restart: always
