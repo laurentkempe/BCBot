@@ -1,2 +1,2 @@
 # BCBot
-Out Team Bot for Microsoft Teams
+Our Team Bot for Microsoft Teams
