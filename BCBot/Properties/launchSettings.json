@@ -10,8 +10,8 @@
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchBrowser": true,
       "environmentVariables": {
+        "GithubIncomingWebhookUrl": "",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
