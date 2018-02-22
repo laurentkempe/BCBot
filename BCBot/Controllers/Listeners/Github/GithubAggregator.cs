@@ -1,27 +1,21 @@
-using System;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using BCBot.Controllers.Listeners.Github.Models;
 using BCBot.Core.Teams;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BCBot.Controllers.Listeners.Github
 {
     public class GithubAggregator
     {
-        private readonly HttpClient _httpClient;
+        private readonly ITeamsClient _teamsClient;
         private readonly IOptions<AppSettings> _settings;
-        private readonly ILogger<GithubAggregator> _logger;
 
-        public GithubAggregator(HttpClient httpClient, IOptions<AppSettings> settings, ILogger<GithubAggregator> logger)
+        public GithubAggregator(ITeamsClient teamsClient, IOptions<AppSettings> settings)
         {
-            _httpClient = httpClient;
+            _teamsClient = teamsClient;
             _settings = settings;
-            _logger = logger;
         }
 
         public async Task Handle(GithubPushNotification notification)
@@ -37,46 +31,19 @@ namespace BCBot.Controllers.Listeners.Github
 
             (var title, var text) = BuildMessage(githubModel);
 
-            var cardData = new SuccessfulTeamsActivityCardData
+            var cardData = new GithubPushActivityCardData
             {
                 Title = title,
                 Text = text
             };
 
-            await SendTeamsActivityCardAsync(cardData);
-        }
-
-        private async Task SendTeamsActivityCardAsync(TeamsActivityCardData teamsActivityCardData)
-        {
-            var url = _settings?.Value.GithubIncomingWebhookUrl;
-
-            if (url == null) return;
-
-
-            _httpClient.DefaultRequestHeaders.Accept.Clear();
-            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            var stringContent = new StringContent(teamsActivityCardData.Json);
-            stringContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-            var teamsWebHookUrl = new Uri(url);
-
-            _logger.LogInformation($"Sending [{teamsActivityCardData.Json}] to Teams.");
-
-            var httpResponseMessage = await _httpClient.PostAsync(teamsWebHookUrl, stringContent);
-
-            _logger.LogInformation(
-                $"PostAsync result {httpResponseMessage.StatusCode}, {httpResponseMessage.ReasonPhrase}");
-
-            httpResponseMessage.EnsureSuccessStatusCode();
-
+            await _teamsClient.SendActivityCardAsync(cardData, _settings?.Value.GithubIncomingWebhookUrl);
         }
 
         private static (string Title, string Text) BuildMessage(GithubModel model)
         {
             var branch = model.Ref.Replace("refs/heads/", "");
             var authorNames = model.Commits.Select(c => c.Author.Name).Distinct().ToList();
-
 
             var title = $"{string.Join(", ", authorNames)} committed on {branch}";
 

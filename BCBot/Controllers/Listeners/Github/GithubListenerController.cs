@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BCBot.Controllers.Listeners.Github.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace BCBot.Controllers.Listeners.Github
 {
@@ -11,7 +12,7 @@ namespace BCBot.Controllers.Listeners.Github
     {
         private readonly IMediator _mediator;
 
-        public GithubListenerController(IMediator mediator)
+        public GithubListenerController(IMediator mediator, IOptions<AppSettings> settings)
         {
             _mediator = mediator;
         }

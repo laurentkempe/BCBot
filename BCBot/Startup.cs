@@ -1,5 +1,7 @@
 using System.Net.Http;
 using BCBot.Controllers.Listeners.Github;
+using BCBot.Controllers.Listeners.TeamCity;
+using BCBot.Core.Teams;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
 namespace BCBot
@@ -24,17 +27,19 @@ namespace BCBot
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddOptions();
-            services.Configure<AppSettings>(Configuration);
-
             services.AddSingleton<HttpClient>();
+            services.AddSingleton<ITeamsClient, TeamsClient>();
             services.AddSingleton<GithubAggregator>();
+            services.AddSingleton<TeamCityAggregator>();
 
             // Add framework services.
             services.AddCors();
             services.AddMvc();
 
             services.AddMediatR(typeof(Startup));
+
+            services.AddOptions();
+            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

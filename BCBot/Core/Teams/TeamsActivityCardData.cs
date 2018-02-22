@@ -34,5 +34,6 @@ namespace BCBot.Core.Teams
     {
         public GithubPushActivityCardData()
         {
+            Color = "FFFFFF";
         }
     }}
